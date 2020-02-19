@@ -1,0 +1,60 @@
+# from OCC.Core.gp import gp_Dir, gp_Ax2, gp_Circ, gp_Pnt
+# from OCC.Core.AIS import AIS_Shape, AIS_RadiusDimension
+# from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeEdge
+# from OCC.Display.SimpleGui import init_display
+#
+# display, start_display, add_menu, add_function_to_menu = init_display()
+#
+# c = gp_Circ(gp_Ax2(gp_Pnt(0., 0., 0.), gp_Dir(0., 0., 1.)), 80)
+# ec = BRepBuilderAPI_MakeEdge(c).Edge()
+# ais_shp = AIS_Shape(ec)
+# display.Context.Display(ais_shp, True)
+#
+#
+# rd = AIS_RadiusDimension(ec)
+# #rd.SetArrowSize(12)
+# display.Context.Display(rd, True)
+# display.FitAll()
+# start_display()
+
+
+
+
+import math
+from OCC.Core.BRepBuilderAPI import BRepBuilderAPI_MakeEdge, BRepBuilderAPI_MakeWire, BRepBuilderAPI_MakeFace
+from OCC.Core.BRepPrimAPI import BRepPrimAPI_MakeRevol
+from OCC.Display.SimpleGui import init_display
+from OCC.Core.gp import gp_Pnt, gp_Dir, gp_Ax1, gp_Circ, gp_Ax2
+
+display, start_display, add_menu, add_function_to_menu = init_display()
+
+
+def revolved_shape():
+    """ demonstrate how to create a revolved shape from an edge
+    adapted from algotopia.com's opencascade_basic tutorial:
+    http://www.algotopia.com/contents/opencascade/opencascade_basic
+    """
+    edg_points = gp_Circ(gp_Ax2(gp_Pnt(0., 0., 0.), gp_Dir(0., 0., 1.)), 0.6)
+
+
+    # aggregate edges in wire
+    hexwire = BRepBuilderAPI_MakeWire()
+
+    # for i in range(2):
+    hexedge = BRepBuilderAPI_MakeEdge(edg_points).Edge()
+    hexwire.Add(hexedge)
+
+    hexwire_wire = hexwire.Wire()
+    # face from wire
+    hexface = BRepBuilderAPI_MakeFace(hexwire_wire).Face()
+    revolve_axis = gp_Ax1(gp_Pnt(2, 2, 0), gp_Dir(2, 0, 0))
+    # create revolved shape
+    revolved_shape_ = BRepPrimAPI_MakeRevol(hexface, revolve_axis, math.radians(180.)).Shape()
+
+    # render wire & revolved shape
+    display.DisplayShape([revolved_shape_, hexface])
+    display.FitAll()
+    start_display()
+
+if __name__ == '__main__':
+    revolved_shape()
